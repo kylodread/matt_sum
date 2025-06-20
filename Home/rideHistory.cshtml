@@ -1,0 +1,145 @@
+﻿@{
+    ViewBag.Title = "Ride History";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="text-center my-4">
+    <img src="~/Images/Clock.png" alt="Clock" style="width: 5%; height: auto;">
+    <h2 class="text-secondary">Ride History</h2>
+</div>
+
+<div id="historyContainer" class="d-flex flex-column align-items-center"></div>
+
+<style>
+    .ride-card {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 16px;
+        width: 90%;
+        max-width: 500px;
+        background: #fff;
+        margin-bottom: 16px;
+    }
+
+    .sos-ride {
+        border-color: #dc3545;
+        color: #dc3545;
+    }
+
+    .ride-date {
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    .ride-info {
+        font-size: 14px;
+        color: #333;
+    }
+
+    .ride-card .arrow {
+        float: right;
+        font-weight: bold;
+    }
+</style>
+
+<script>
+    // Function to run when the page loads
+    window.onload = function () {
+        console.log("Ride history page loaded, getting booking history");
+        
+        // Get the ride history from localStorage
+        var historyData = localStorage.getItem('rideHistory');
+        var history = [];
+        
+        if (historyData) {
+            history = JSON.parse(historyData);
+            console.log("Found " + history.length + " bookings in history");
+        } else {
+            console.log("No ride history found in localStorage");
+        }
+        
+        // Get the container where we'll display the history
+        var container = document.getElementById('historyContainer');
+        container.innerHTML = '';
+
+        // Check if we have any history to display
+        if (history.length === 0) {
+            console.log("No bookings to display, showing empty message");
+            container.innerHTML = '<div class="text-muted">No ride history found.</div>';
+            return;
+        }
+
+        console.log("Displaying " + history.length + " bookings in reverse order");
+        
+        // Display bookings in reverse order (most recent first)
+        for (var i = history.length - 1; i >= 0; i--) {
+            var booking = history[i];
+            console.log("Processing booking " + (history.length - i) + " of " + history.length);
+            
+            // Check if this is an SOS booking
+            var isSOS = booking.isSOS;
+            
+            // Format the date
+            var dateObject = new Date(booking.dateBooked);
+            var dateString = dateObject.toLocaleDateString();
+            
+            // Create the date display text
+            var dateDisplay = "";
+            if (isSOS) {
+                dateDisplay = '<span class="ride-date text-danger">' + dateString + ' – S.O.S.</span>';
+                console.log("This is an SOS booking");
+            } else {
+                dateDisplay = '<span class="ride-date">' + dateString + '</span>';
+            }
+
+            // Create a new card element for this booking
+            var card = document.createElement('div');
+            
+            // Set the CSS class for the card
+            if (isSOS) {
+                card.className = 'ride-card sos-ride';
+            } else {
+                card.className = 'ride-card';
+            }
+
+            // Create the HTML content for the card
+            var cardHTML = "";
+            cardHTML += dateDisplay;
+            
+            // Add booking ID
+            var bookingId = booking.id || 'N/A';
+            cardHTML += '<div class="ride-info">Booking ID: ' + bookingId + '</div>';
+            
+            // Add driver name
+            var driverName = 'N/A';
+            if (booking.driver && booking.driver.name) {
+                driverName = booking.driver.name;
+            }
+            cardHTML += '<div class="ride-info">Driver Name: ' + driverName + '</div>';
+            
+            // Add ambulance type
+            var ambulanceType = 'N/A';
+            if (booking.vehicle && booking.vehicle.type) {
+                ambulanceType = booking.vehicle.type;
+            }
+            cardHTML += '<div class="ride-info">Ambulance Type: ' + ambulanceType + '</div>';
+            
+            // Add pickup address
+            var pickupAddress = 'N/A';
+            if (booking.pickupAddress && booking.pickupAddress !== "") {
+                pickupAddress = booking.pickupAddress;
+            }
+            cardHTML += '<div class="ride-info">Pick-Up Address: ' + pickupAddress + '</div>';
+            
+            // Set the HTML content of the card
+            card.innerHTML = cardHTML;
+            
+            // Add the card to the container
+            container.appendChild(card);
+            
+            console.log("Added card for booking " + bookingId);
+        }
+        
+        console.log("All booking cards created and displayed successfully");
+    };
+</script>

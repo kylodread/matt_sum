@@ -1,0 +1,144 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+<main>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 d-flex flex-column justify-content-center align-items-center text-center">
+                <h2>For help from the best we have to offer</h2>
+                <a href="@Url.Action("serviceSelect", "Home")" class="btn btn-primary">
+                    Book an Ambulance
+                </a>
+            </div>
+            <div class="col-md-6">
+                <img id="ambulance-team" src="~/Images/Ambulance Team.png" alt="Ambulance Team" />
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-6 p-4 d-flex flex-column justify-content-center align-items-center text-center">
+                <h1>HAVING AN EMERGENCY?</h1>
+                <h5>If you have an actual emergency press the S.O.S button to get an emergency ride immediately</h5>
+                <p>This doesn't include getting you hand stuck in a pickle jar</p>
+            </div>
+            <div class="col-md-6 d-flex align-items-center justify-content-center">
+                <img id="sos-btn" src="~/Images/SOS.png" alt="SOS Button" style="cursor:pointer;" />
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    // Get the SOS button element
+    var sosButton = document.getElementById('sos-btn');
+    
+    // Add click event listener to SOS button
+    sosButton.addEventListener('click', function () {
+        console.log("SOS button clicked - emergency booking started");
+        
+        // Get all drivers from localStorage
+        var driversData = localStorage.getItem('drivers');
+        var drivers = [];
+        if (driversData) {
+            drivers = JSON.parse(driversData);
+        }
+        
+        // Get all vehicles from localStorage
+        var vehiclesData = localStorage.getItem('vehicles');
+        var vehicles = [];
+        if (vehiclesData) {
+            vehicles = JSON.parse(vehiclesData);
+        }
+        
+        console.log("Found " + drivers.length + " drivers and " + vehicles.length + " vehicles");
+        
+        // Filter to get only ALS drivers (Advanced Life Support)
+        var alsDrivers = [];
+        for (var i = 0; i < drivers.length; i++) {
+            if (drivers[i].service === 'ALS (Advanced Life Support)') {
+                alsDrivers.push(drivers[i]);
+            }
+        }
+        
+        // Filter to get only ALS vehicles
+        var alsVehicles = [];
+        for (var i = 0; i < vehicles.length; i++) {
+            if (vehicles[i].service === 'ALS (Advanced Life Support)') {
+                alsVehicles.push(vehicles[i]);
+            }
+        }
+        
+        console.log("Found " + alsDrivers.length + " ALS drivers and " + alsVehicles.length + " ALS vehicles");
+        
+        // Check if we have any ALS drivers and vehicles available
+        if (alsDrivers.length === 0) {
+            alert('No ALS drivers available for emergency booking.');
+            return;
+        }
+        
+        if (alsVehicles.length === 0) {
+            alert('No ALS vehicles available for emergency booking.');
+            return;
+        }
+        
+        // Pick a random driver from ALS drivers
+        var randomDriverIndex = Math.floor(Math.random() * alsDrivers.length);
+        var selectedDriver = alsDrivers[randomDriverIndex];
+        
+        // Pick a random vehicle from ALS vehicles
+        var randomVehicleIndex = Math.floor(Math.random() * alsVehicles.length);
+        var selectedVehicle = alsVehicles[randomVehicleIndex];
+        
+        console.log("Selected driver: " + selectedDriver.first + " " + selectedDriver.last);
+        console.log("Selected vehicle: " + selectedVehicle.type);
+        
+        // Get current date and time
+        var currentDate = new Date();
+        var currentTime = currentDate.getHours() + ":" + currentDate.getMinutes(); //2025-06-20T12:00:00.000Z
+        
+        // Create a unique ID for the booking (simple version)
+        var bookingId = "booking_" + Date.now(); 
+        
+        // Create the booking object
+        var newBooking = {
+            id: bookingId,
+            dateBooked: currentDate.toISOString(),
+            pickupTime: currentTime,
+            pickupAddress: 'Current Location',
+            isSOS: true,
+            driver: {
+                name: selectedDriver.first + " " + selectedDriver.last,
+                phone: selectedDriver.phone
+            },
+            vehicle: {
+                type: selectedVehicle.type,
+                registration: selectedVehicle.reg
+            }
+        };
+        
+        console.log("Created emergency booking with ID: " + bookingId);
+        
+        // Get existing ride history
+        var historyData = localStorage.getItem('rideHistory');
+        var rideHistory = [];
+        if (historyData) {
+            rideHistory = JSON.parse(historyData);
+        }
+        
+        // Add the new booking to history
+        rideHistory.push(newBooking);
+        
+        // Save updated history back to localStorage
+        localStorage.setItem('rideHistory', JSON.stringify(rideHistory));
+        
+        // Save this as the latest booking
+        localStorage.setItem('latestBooking', JSON.stringify(newBooking));
+        
+        console.log("Booking saved to localStorage, redirecting to ride history");
+        
+        // Redirect to ride history page
+        window.location.href = '@Url.Action("rideHistory", "Home")'; 
+    });
+
+    //lots of love from your second fav brown guy & first fav developer!!
+</script>

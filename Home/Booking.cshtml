@@ -1,0 +1,376 @@
+﻿@{
+    ViewBag.Title = "bookingForm";
+}
+
+<main class="container py-5">
+    <div class="text-center mb-4">
+        <img src="~/Images/Ambulance Icon.png" alt="Ambulance Icon" style="width: 8%; height: auto;">
+        <h2 class="mt-3 fw-bold text-secondary" id="bookingHeader">Advanced Life Support</h2>
+    </div>
+
+    <div class="bg-white rounded shadow-sm p-4 mx-auto" style="max-width: 600px;">
+        @using (Html.BeginForm("SubmitBooking", "Booking", FormMethod.Post, new { @id = "bookingForm", @novalidate = "novalidate" }))
+        {
+            <div class="row g-3">
+                <div class="col-md-6">
+                    @Html.TextBox("FullName", null, new { @class = "form-control", placeholder = "Full Name*", required = "required" })
+                </div>
+                <div class="col-md-6">
+                    @Html.TextBox("PhoneNumber", null, new { @class = "form-control", placeholder = "Phone*", required = "required", pattern = @"^\+?[0-9\s\-]+$" })
+                </div>
+                <div class="col-md-6 position-relative">
+                    <input type="time" id="pickUpTime" class="form-control" placeholder="Pick-Up Time*" required />
+                    <span class="time-icon">🕒</span>
+                </div>
+                <div class="col-md-6">
+                    <select id="reason" name="Reason" class="form-select" required>
+                        <option value="" disabled selected>Reason*</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <select id="vehicle" name="VehicleIndex" class="form-select" required>
+                        <option value="" disabled selected>Vehicle*</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <select id="driver" name="DriverIndex" class="form-select" required>
+                        <option value="" disabled selected>Driver*</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    @Html.TextArea("PickupAddress", null, 3, 50, new { @class = "form-control", placeholder = "Pick-Up Address" })
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100 mt-4">BOOK AMBULANCE</button>
+        }
+    </div>
+</main>
+
+<style>
+    .form-control, .form-select {
+        background: #f5f5f5;
+        border: none;
+        padding: 10px 16px;
+    }
+
+    .form-control:focus, .form-select:focus {
+        background: #f5f5f5;
+        box-shadow: none;
+        border-color: #6c63ff;
+    }
+
+    .time-icon {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+
+    .btn-success {
+        background-color: #6c63ff;
+        border-color: #6c63ff;
+        font-weight: normal;
+    }
+
+    .btn-success:hover {
+        background-color: #554ee0;
+        border-color: #554ee0;
+    }
+</style>
+
+<script>
+    // Get the service from the URL parameters
+    var urlString = window.location.search;
+    var urlParams = new URLSearchParams(urlString);
+    var selectedService = urlParams.get('service');
+    
+    console.log("Selected service from URL: " + selectedService);
+    
+    // Define the reasons for each service type
+    var serviceReasons = {
+        "ALS (Advanced Life Support)": [
+            "Critical care",
+            "Life-saving",
+            "Severe emergencies"
+        ],
+        "BLS (Basic Life Support)": [
+            "Essential care",
+            "CPR & monitoring",
+            "Non-life-threatening"
+        ],
+        "Patient Transport": [
+            "Safe transfer",
+            "Medical supervision",
+            "Non-emergency trips"
+        ],
+        "Medical Utility Transport": [
+            "Supplies transport",
+            "Equipment delivery",
+            "Emergency support"
+        ],
+        "Event Medical Ambulance": [
+            "On-site care",
+            "Rapid response",
+            "Crowd safety"
+        ],
+        "Air Ambulance": [
+            "Fast transport",
+            "Critical care",
+            "Remote access"
+        ]
+    };
+
+    // Function to populate the vehicle dropdown
+    function populateVehicles(filteredVehicles) {
+        console.log("Populating vehicles dropdown");
+        
+        var vehicleSelect = document.getElementById('vehicle');
+        vehicleSelect.innerHTML = '<option value="" disabled selected>Vehicle*</option>';
+        
+        // Get vehicles from localStorage if no filtered vehicles provided
+        var vehicles = [];
+        if (filteredVehicles) {
+            vehicles = filteredVehicles;
+        } else {
+            var vehiclesData = localStorage.getItem('vehicles');
+            if (vehiclesData) {
+                vehicles = JSON.parse(vehiclesData);
+            }
+        }
+        
+        console.log("Found " + vehicles.length + " vehicles to populate");
+        
+        // Add each vehicle to the dropdown
+        for (var i = 0; i < vehicles.length; i++) {
+            var vehicle = vehicles[i];
+            var option = document.createElement('option');
+            option.value = i;
+            option.textContent = vehicle.type + " - " + vehicle.reg;
+            vehicleSelect.appendChild(option);
+        }
+        
+        console.log("Vehicle dropdown populated successfully");
+    }
+
+    // Function to populate the driver dropdown
+    function populateDrivers(filteredDrivers) {
+        console.log("Populating drivers dropdown");
+        
+        var driverSelect = document.getElementById('driver');
+        driverSelect.innerHTML = '<option value="" disabled selected>Driver*</option>';
+        
+        // Get drivers from localStorage if no filtered drivers provided
+        var drivers = [];
+        if (filteredDrivers) {
+            drivers = filteredDrivers;
+        } else {
+            var driversData = localStorage.getItem('drivers');
+            if (driversData) {
+                drivers = JSON.parse(driversData);
+            }
+        }
+        
+        console.log("Found " + drivers.length + " drivers to populate");
+        
+        // Add each driver to the dropdown
+        for (var i = 0; i < drivers.length; i++) {
+            var driver = drivers[i];
+            var option = document.createElement('option');
+            option.value = i;
+            option.textContent = driver.first + " " + driver.last + " (" + driver.phone + ")";
+            driverSelect.appendChild(option);
+        }
+        
+        console.log("Driver dropdown populated successfully");
+    }
+
+    // Function to populate the reasons dropdown based on service
+    function populateReasons(service) {
+        console.log("Populating reasons dropdown for service: " + service);
+        
+        var reasonSelect = document.getElementById('reason');
+        reasonSelect.innerHTML = '<option value="" disabled selected>Reason*</option>';
+
+        // Get reasons for the selected service
+        var reasons = serviceReasons[service];
+        if (reasons && reasons.length > 0) {
+            console.log("Found " + reasons.length + " specific reasons for this service");
+            
+            // Add each reason to the dropdown
+            for (var i = 0; i < reasons.length; i++) {
+                var reason = reasons[i];
+                var option = document.createElement('option');
+                option.value = reason;
+                option.textContent = reason;
+                reasonSelect.appendChild(option);
+            }
+        } else {
+            console.log("No specific reasons found, using default reasons");
+            reasonSelect.innerHTML += `
+                <option>Medical Emergency</option>
+                <option>Routine Checkup</option>
+                <option>Patient Transport</option>
+                <option>Other</option>
+            `;
+        }
+        
+        console.log("Reasons dropdown populated successfully");
+    }
+
+    // Function to run when the page loads
+    window.onload = function() {
+        console.log("Booking page loaded, initializing form");
+        
+        if (selectedService) {
+            console.log("Service selected: " + selectedService);
+            
+            // Update the header to show the selected service
+            var headerElement = document.getElementById("bookingHeader");
+            headerElement.textContent = selectedService;
+            
+            // Get all drivers and vehicles from localStorage
+            var allDriversData = localStorage.getItem("drivers");
+            var allVehiclesData = localStorage.getItem("vehicles");
+            
+            var allDrivers = [];
+            var allVehicles = [];
+            
+            if (allDriversData) {
+                allDrivers = JSON.parse(allDriversData);
+            }
+            if (allVehiclesData) {
+                allVehicles = JSON.parse(allVehiclesData);
+            }
+            
+            console.log("Found " + allDrivers.length + " total drivers and " + allVehicles.length + " total vehicles");
+            
+            // Filter drivers and vehicles by the selected service
+            var filteredDrivers = [];
+            var filteredVehicles = [];
+            
+            for (var i = 0; i < allDrivers.length; i++) {
+                if (allDrivers[i].service === selectedService) {
+                    filteredDrivers.push(allDrivers[i]);
+                }
+            }
+            
+            for (var i = 0; i < allVehicles.length; i++) {
+                if (allVehicles[i].service === selectedService) {
+                    filteredVehicles.push(allVehicles[i]);
+                }
+            }
+            
+            console.log("Filtered to " + filteredDrivers.length + " drivers and " + filteredVehicles.length + " vehicles for " + selectedService);
+            
+            // Populate the dropdowns with filtered data
+            populateDrivers(filteredDrivers);
+            populateVehicles(filteredVehicles);
+            populateReasons(selectedService);
+        } else {
+            console.log("No service selected, populating with all data");
+            populateVehicles();
+            populateDrivers();
+            populateReasons(null);
+        }
+        
+        console.log("Form initialization complete");
+    };
+
+    // Form submission handling
+    (function () {
+        'use strict';
+        var form = document.getElementById('bookingForm');
+        
+        console.log("Setting up form submission handler");
+
+        form.addEventListener('submit', function (event) {
+            console.log("Form submission started");
+            
+            // Prevent the default form submission
+            event.preventDefault();
+            event.stopPropagation();
+
+            // Check if the form is valid
+            if (!form.checkValidity()) {
+                console.log("Form validation failed");
+                form.classList.add('was-validated');
+                return;
+            }
+
+            console.log("Form validation passed");
+            form.classList.remove('was-validated');
+
+            // Get all the form values
+            var pickupTime = document.getElementById('pickUpTime').value;
+            var pickupAddress = document.getElementById('PickupAddress').value;
+            var vehicleIndex = document.getElementById('vehicle').value;
+            var driverIndex = document.getElementById('driver').value;
+            var reason = document.getElementById('reason').value;
+            
+            console.log("Form values collected:");
+            console.log("Pickup time: " + pickupTime);
+            console.log("Pickup address: " + pickupAddress);
+            console.log("Vehicle index: " + vehicleIndex);
+            console.log("Driver index: " + driverIndex);
+            console.log("Reason: " + reason);
+
+            // Get the vehicles and drivers arrays
+            var vehiclesData = localStorage.getItem('vehicles');
+            var driversData = localStorage.getItem('drivers');
+            
+            var vehicles = [];
+            var drivers = [];
+            
+            if (vehiclesData) {
+                vehicles = JSON.parse(vehiclesData);
+            }
+            if (driversData) {
+                drivers = JSON.parse(driversData);
+            }
+            
+            console.log("Found " + vehicles.length + " vehicles and " + drivers.length + " drivers in localStorage");
+
+            // Create the booking object
+            var booking = {
+                id: "booking_" + Date.now(), // Simple ID generation
+                dateBooked: new Date().toISOString(),
+                pickupTime: pickupTime,
+                pickupAddress: pickupAddress,
+                driver: {
+                    name: drivers[driverIndex].first + " " + drivers[driverIndex].last,
+                    phone: drivers[driverIndex].phone
+                },
+                vehicle: {
+                    type: vehicles[vehicleIndex].type,
+                    registration: vehicles[vehicleIndex].reg
+                },
+                reason: reason
+            };
+            
+            console.log("Created booking object with ID: " + booking.id);
+
+            // Get existing ride history
+            var historyData = localStorage.getItem('rideHistory');
+            var history = [];
+            if (historyData) {
+                history = JSON.parse(historyData);
+            }
+            
+            // Add the new booking to history
+            history.push(booking);
+            
+            // Save the updated history back to localStorage
+            localStorage.setItem('rideHistory', JSON.stringify(history));
+            
+            // Save this as the latest booking
+            localStorage.setItem('latestBooking', JSON.stringify(booking));
+            
+            console.log("Booking saved to localStorage, redirecting to confirmation page");
+            
+            // Redirect to the confirmation page
+            window.location.href = '/Home/confirmedBooking';
+        }, false);
+    })();
+</script>

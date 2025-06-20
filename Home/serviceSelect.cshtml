@@ -1,0 +1,179 @@
+﻿@{
+    ViewBag.Title = "Select a Service";
+}
+
+<main class="container py-5">
+    <h2 class="text-center mb-3 fw-bold">Select a service...</h2>
+    <p class="text-center text-muted mb-5">
+        Please select the appropriate services you require so we can dispatch the correct driver and vehicle.
+    </p>
+
+    <div class="row g-4">
+
+        <div class="col-md-4">
+            <a href="/Home/Booking?service=ALS%20(Advanced%20Life%20Support)" class="text-decoration-none text-dark">
+                <div class="card h-100 shadow-sm text-center p-3" id="als-card">
+                    <div class="card-body">
+                        <h5 class="card-title">ALS (Advanced Life Support)</h5>
+                        <p class="card-text text-muted">
+                            ALS ambulance is staffed by a Paramedic and is used to transport patients who require high level of care
+                        </p>
+                    </div>
+                </div>
+                </a>
+        </div>
+
+        <div class="col-md-4">
+            <a href="/Home/Booking?service=BLS%20(Basic%20Life%20Support)" class="text-decoration-none text-dark">
+                <div class="card h-100 shadow-sm text-center p-3" id="bls-card">
+                    <div class="card-body">
+                        <h5 class="card-title">BLS (Basic Life Support)</h5>
+                        <p class="card-text text-muted">
+                            BLS ambulance provides transport to patients who are in a non life threatening condition
+                        </p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4">
+            <a href="/Home/Booking?service=Patient%20Transport" class="text-decoration-none text-dark">
+                <div class="card h-100 shadow-sm text-center p-3" id="patient-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Patient Transport</h5>
+                        <p class="card-text text-muted">
+                            The most basic type of transport for patients requiring ambulatory support to and from the hospital
+                        </p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4">
+            <a href="/Home/Booking?service=Medical%20Utility%20Transport" class="text-decoration-none text-dark">
+                <div class="card h-100 shadow-sm text-center p-3" id="utility-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Medical Utility Vehicle</h5>
+                        <p class="card-text text-muted">
+                            A state-of-the-art small or large van that is designed to facilitate the movement and transport of patients
+                        </p>
+                    </div>
+                </div>
+                </a>
+        </div>
+
+        <div class="col-md-4">
+            <a href="/Home/Booking?service=Event%20Medical%20Ambulance" class="text-decoration-none text-dark">
+                <div class="card h-100 shadow-sm text-center p-3" id="event-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Event Medical Ambulance</h5>
+                        <p class="card-text text-muted">
+                            Ambulances that are stationed at events, such as concerts, sports games, and festivals, to provide medical assistance
+                        </p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4">
+            <a href="/Home/Booking?service=Air%20Ambulance" class="text-decoration-none text-dark">
+                <div class="card h-100 shadow-sm text-center p-3" id="air-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Air Ambulance</h5>
+                        <p class="card-text text-muted">
+                            Air ambulance helps in the transfer of patients across long distances in both emergency and non-emergency situations
+                        </p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</main>
+
+<style>
+    .card {
+        background-color: #f8f9fa; /* slightly darker base color */
+        transition: all 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+        background-color: #ffffff; /* brighter on hover */
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* raised effect */
+        transform: translateY(-2px);
+    }
+</style>
+
+<script>
+    // Wait for the page to load completely
+    window.onload = function() {
+        console.log("Service selection page loaded");
+        
+        // Get all the service cards
+        var alsCard = document.getElementById('als-card');
+        var blsCard = document.getElementById('bls-card');
+        var patientCard = document.getElementById('patient-card');
+        var utilityCard = document.getElementById('utility-card');
+        var eventCard = document.getElementById('event-card');
+        var airCard = document.getElementById('air-card');
+        
+        console.log("Found " + 6 + " service cards");
+        
+        // Add click event listeners to each card
+        if (alsCard) {
+            alsCard.addEventListener('click', function() {
+                console.log("ALS (Advanced Life Support) selected");
+                // The link will handle the navigation
+            });
+        }
+        
+        if (blsCard) {
+            blsCard.addEventListener('click', function() {
+                console.log("BLS (Basic Life Support) selected");
+                // The link will handle the navigation
+            });
+        }
+        
+        if (patientCard) {
+            patientCard.addEventListener('click', function() {
+                console.log("Patient Transport selected");
+                // The link will handle the navigation
+            });
+        }
+        
+        if (utilityCard) {
+            utilityCard.addEventListener('click', function() {
+                console.log("Medical Utility Transport selected");
+                // The link will handle the navigation
+            });
+        }
+        
+        if (eventCard) {
+            eventCard.addEventListener('click', function() {
+                console.log("Event Medical Ambulance selected");
+                // The link will handle the navigation
+            });
+        }
+        
+        if (airCard) {
+            airCard.addEventListener('click', function() {
+                console.log("Air Ambulance selected");
+                // The link will handle the navigation
+            });
+        }
+        
+        // Add some basic hover effects with JavaScript too
+        var allCards = document.querySelectorAll('.card');
+        for (var i = 0; i < allCards.length; i++) {
+            allCards[i].addEventListener('mouseenter', function() {
+                console.log("Card hovered over");
+                this.style.cursor = 'pointer';
+            });
+            
+            allCards[i].addEventListener('mouseleave', function() {
+                console.log("Card hover ended");
+            });
+        }
+        
+        console.log("All event listeners added successfully");
+    };
+</script>

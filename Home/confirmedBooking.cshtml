@@ -1,0 +1,142 @@
+﻿@{
+    ViewBag.Title = "Booking Confirmed";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="text-center my-4">
+    <img src="~/Images/Clipboard.png" alt="Clipboard Icon" style="width: 8%; height: auto;">
+    <h2 class="text-secondary fw-bold">Booking Confirmed</h2>
+</div>
+
+<div class="details-card mx-auto mb-3 p-3">
+    <h5 class="text-center text-secondary">Booking Details</h5>
+    <div id="bookingDetails" class="mt-2"></div>
+</div>
+
+<div class="details-card mx-auto mb-3 p-3">
+    <h5 class="text-center text-secondary">Driver Details</h5>
+    <div class="text-center mb-2">
+    </div>
+    <div id="driverDetails"></div>
+</div>
+
+<div class="details-card mx-auto mb-3 p-3">
+    <h5 class="text-center text-secondary">Ambulance Details</h5>
+    <div class="text-center mb-2">
+    </div>
+    <div id="ambulanceDetails"></div>
+</div>
+
+<style>
+    .details-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        max-width: 400px;
+    }
+
+        .details-card p {
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+</style>
+
+<script>
+    // Function to run when the page loads
+    window.onload = function () {
+        console.log("Confirmation page loaded, getting booking details");
+        
+        // Get the latest booking from localStorage
+        var bookingData = localStorage.getItem('latestBooking');
+        var booking = null;
+        
+        if (bookingData) {
+            booking = JSON.parse(bookingData);
+            console.log("Found booking data in localStorage");
+        } else {
+            console.log("No booking data found in localStorage");
+        }
+
+        // Check if we have booking data
+        if (!booking) {
+            console.log("No booking data available, showing error message");
+            document.body.innerHTML = '<div class="alert alert-danger mt-4 text-center">No booking data found.</div>';
+            return;
+        }
+
+        console.log("Processing booking with ID: " + booking.id);
+        
+        // Function to format the date from ISO string to readable format
+        function formatDate(isoDateString) {
+            console.log("Formatting date: " + isoDateString);
+            
+            var dateObject = new Date(isoDateString);
+            var day = dateObject.getDate();
+            var month = dateObject.getMonth() + 1; // Months are 0-indexed
+            var year = dateObject.getFullYear();
+            
+            // Add leading zeros if needed
+            if (day < 10) {
+                day = "0" + day;
+            }
+            if (month < 10) {
+                month = "0" + month;
+            }
+            
+            var formattedDate = day + "/" + month + "/" + year;
+            console.log("Formatted date: " + formattedDate);
+            return formattedDate;
+        }
+
+        // Get the elements where we'll display the booking details
+        var bookingDetailsElement = document.getElementById('bookingDetails');
+        var driverDetailsElement = document.getElementById('driverDetails');
+        var ambulanceDetailsElement = document.getElementById('ambulanceDetails');
+        
+        console.log("Found display elements for booking details");
+
+        // Create the booking details HTML
+        var bookingDetailsHTML = "";
+        bookingDetailsHTML += "<p><strong>Booking ID:</strong> " + booking.id + "</p>";
+        bookingDetailsHTML += "<p><strong>Date Booked:</strong> " + formatDate(booking.dateBooked) + "</p>";
+        bookingDetailsHTML += "<p><strong>Pick-Up Time:</strong> " + booking.pickupTime + "</p>";
+        
+        // Handle the pickup address (might be empty)
+        var pickupAddress = booking.pickupAddress;
+        if (!pickupAddress || pickupAddress === "") {
+            pickupAddress = "N/A";
+        }
+        bookingDetailsHTML += "<p><strong>Pick-Up Address:</strong> " + pickupAddress + "</p>";
+        
+        console.log("Created booking details HTML");
+        bookingDetailsElement.innerHTML = bookingDetailsHTML;
+
+        // Create the driver details HTML
+        var driverDetailsHTML = "";
+        if (booking.driver) {
+            driverDetailsHTML += "<p><strong>Driver Name:</strong> " + booking.driver.name + "</p>";
+            driverDetailsHTML += "<p><strong>Phone Number:</strong> " + booking.driver.phone + "</p>";
+        } else {
+            driverDetailsHTML += "<p><strong>Driver Name:</strong> N/A</p>";
+            driverDetailsHTML += "<p><strong>Phone Number:</strong> N/A</p>";
+        }
+        
+        console.log("Created driver details HTML");
+        driverDetailsElement.innerHTML = driverDetailsHTML;
+
+        // Create the ambulance details HTML
+        var ambulanceDetailsHTML = "";
+        if (booking.vehicle) {
+            ambulanceDetailsHTML += "<p><strong>Ambulance Type:</strong> " + booking.vehicle.type + "</p>";
+            ambulanceDetailsHTML += "<p><strong>Registration Number:</strong> " + booking.vehicle.registration + "</p>";
+        } else {
+            ambulanceDetailsHTML += "<p><strong>Ambulance Type:</strong> N/A</p>";
+            ambulanceDetailsHTML += "<p><strong>Registration Number:</strong> N/A</p>";
+        }
+        
+        console.log("Created ambulance details HTML");
+        ambulanceDetailsElement.innerHTML = ambulanceDetailsHTML;
+        
+        console.log("All booking details displayed successfully");
+    };
+</script>

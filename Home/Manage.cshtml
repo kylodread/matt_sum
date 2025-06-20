@@ -1,0 +1,626 @@
+﻿@{
+    ViewBag.Title = "Driver and Vehicle Management";
+}
+
+<main class="container py-5">
+    <div class="text-center mb-5">
+        <img src="~/Images/Edit.png" width="50" alt="Edit" />
+        <h2 class="mt-3 fw-bold">Driver and Vehicle Management</h2>
+    </div>
+
+    <!-- Drivers Section -->
+    <div class="bg-white rounded shadow-sm p-4 mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">Drivers</h5>
+            <button class="btn btn-primary" onclick="openDriverModal()">Create</button>
+        </div>
+
+        <div class="table-responsive">
+            <div class="row mb-3 g-2">
+                <div class="col-md-5">
+                    <input type="text" class="form-control" id="searchDriverName" placeholder="Driver First Name" />
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select" id="searchDriverService">
+                        <option value="">All Services</option>
+                        <option>ALS (Advanced Life Support)</option>
+                        <option>BLS (Basic Life Support)</option>
+                        <option>Patient Transport</option>
+                        <option>Medical Utility Transport</option>
+                        <option>Event Medical Ambulance</option>
+                        <option>Air Ambulance</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-success w-100" onclick="filterDrivers()">Search</button>
+                </div>
+            </div>
+
+            <table class="table align-middle" id="driverTable">
+                <thead class="table-light">
+                    <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Phone Number</th>
+                        <th>Service</th>
+                        <th>Controls</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Vehicles Section -->
+    <div class="bg-white rounded shadow-sm p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">Vehicles</h5>
+            <button class="btn btn-primary" onclick="openVehicleModal()">Create</button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table align-middle" id="vehicleTable">
+                <thead class="table-light">
+                    <tr>
+                        <th>Type</th>
+                        <th>Registration</th>
+                        <th>Service</th>
+                        <th>Controls</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div class="text-end mt-3">
+            <button class="btn btn-success" onclick="exportVehicles()">Export</button>
+        </div>
+    </div>
+</main>
+
+<!-- Driver Modal -->
+<div class="modal fade" id="driverModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" onsubmit="saveDriver(event)">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Driver</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input class="form-control mb-2" placeholder="First Name" id="driverFirst" required>
+                <input class="form-control mb-2" placeholder="Last Name" id="driverLast" required>
+                <input class="form-control mb-2" placeholder="Phone Number" id="driverPhone" required>
+                <select class="form-select mb-2" id="driverService" required>
+                    <option selected disabled value="">Select Service</option>
+                    <option>ALS (Advanced Life Support)</option>
+                    <option>BLS (Basic Life Support)</option>
+                    <option>Patient Transport</option>
+                    <option>Medical Utility Transport</option>
+                    <option>Event Medical Ambulance</option>
+                    <option>Air Ambulance</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Vehicle Modal -->
+<div class="modal fade" id="vehicleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" onsubmit="saveVehicle(event)">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Vehicle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input class="form-control mb-2" placeholder="Vehicle Type" id="vehicleType" required>
+                <input class="form-control mb-2" placeholder="Registration" id="vehicleReg" required>
+                <select class="form-select mb-2" id="vehicleService" required>
+                    <option selected disabled value="">Select Service</option>
+                    <option>ALS (Advanced Life Support)</option>
+                    <option>BLS (Basic Life Support)</option>
+                    <option>Patient Transport</option>
+                    <option>Medical Utility Transport</option>
+                    <option>Event Medical Ambulance</option>
+                    <option>Air Ambulance</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Function to open the driver creation modal
+    function openDriverModal() {
+        console.log("Opening driver modal");
+        var modal = new bootstrap.Modal(document.getElementById('driverModal'));
+        modal.show();
+    }
+
+    // Function to open the vehicle creation modal
+    function openVehicleModal() {
+        console.log("Opening vehicle modal");
+        var modal = new bootstrap.Modal(document.getElementById('vehicleModal'));
+        modal.show();
+    }
+
+    // Function to save a new driver
+    function saveDriver(e) {
+        console.log("Saving new driver");
+        
+        // Prevent the default form submission
+        e.preventDefault();
+        
+        // Get the form values
+        var firstName = document.getElementById('driverFirst').value;
+        var lastName = document.getElementById('driverLast').value;
+        var phoneNumber = document.getElementById('driverPhone').value;
+        var service = document.getElementById('driverService').value;
+        
+        console.log("Driver details: " + firstName + " " + lastName + ", " + phoneNumber + ", " + service);
+        
+        // Create the driver object
+        var newDriver = {
+            first: firstName,
+            last: lastName,
+            phone: phoneNumber,
+            service: service
+        };
+        
+        // Get existing drivers from localStorage
+        var driversData = localStorage.getItem('drivers');
+        var drivers = [];
+        if (driversData) {
+            drivers = JSON.parse(driversData);
+        }
+        
+        // Add the new driver to the array
+        drivers.push(newDriver);
+        
+        // Save back to localStorage
+        localStorage.setItem('drivers', JSON.stringify(drivers));
+        
+        console.log("Driver saved, total drivers: " + drivers.length);
+        
+        // Update the display
+        renderDrivers();
+        
+        // Hide the modal
+        var modal = bootstrap.Modal.getInstance(document.getElementById('driverModal'));
+        modal.hide();
+        
+        // Reset the form
+        e.target.reset();
+    }
+
+    // Function to save a new vehicle
+    function saveVehicle(e) {
+        console.log("Saving new vehicle");
+        
+        // Prevent the default form submission
+        e.preventDefault();
+        
+        // Get the form values
+        var vehicleType = document.getElementById('vehicleType').value;
+        var registration = document.getElementById('vehicleReg').value;
+        var service = document.getElementById('vehicleService').value;
+        
+        console.log("Vehicle details: " + vehicleType + ", " + registration + ", " + service);
+        
+        // Create the vehicle object
+        var newVehicle = {
+            type: vehicleType,
+            reg: registration,
+            service: service
+        };
+        
+        // Get existing vehicles from localStorage
+        var vehiclesData = localStorage.getItem('vehicles');
+        var vehicles = [];
+        if (vehiclesData) {
+            vehicles = JSON.parse(vehiclesData);
+        }
+        
+        // Add the new vehicle to the array
+        vehicles.push(newVehicle);
+        
+        // Save back to localStorage
+        localStorage.setItem('vehicles', JSON.stringify(vehicles));
+        
+        console.log("Vehicle saved, total vehicles: " + vehicles.length);
+        
+        // Update the display
+        renderVehicles();
+        
+        // Hide the modal
+        var modal = bootstrap.Modal.getInstance(document.getElementById('vehicleModal'));
+        modal.hide();
+        
+        // Reset the form
+        e.target.reset();
+    }
+
+    // Function to render the drivers table
+    function renderDrivers() {
+        console.log("Rendering drivers table");
+        
+        // Get drivers from localStorage
+        var driversData = localStorage.getItem('drivers');
+        var drivers = [];
+        if (driversData) {
+            drivers = JSON.parse(driversData);
+        }
+        
+        console.log("Found " + drivers.length + " drivers to display");
+        
+        // Get the table body element
+        var tableBody = document.querySelector("#driverTable tbody");
+        tableBody.innerHTML = "";
+
+        // Add each driver to the table
+        for (var i = 0; i < drivers.length; i++) {
+            var driver = drivers[i];
+            console.log("Adding driver " + (i + 1) + ": " + driver.first + " " + driver.last);
+            
+            var rowHTML = "";
+            rowHTML += '<tr id="driver-row-' + i + '">';
+            rowHTML += '<td>' + driver.first + '</td>';
+            rowHTML += '<td>' + driver.last + '</td>';
+            rowHTML += '<td>' + driver.phone + '</td>';
+            rowHTML += '<td>' + driver.service + '</td>';
+            rowHTML += '<td>';
+            rowHTML += '<button class="btn btn-warning btn-sm me-1" onclick="editDriver(' + i + ', this)">Update</button>';
+            rowHTML += '<button class="btn btn-danger btn-sm" onclick="deleteDriver(' + i + ')">Delete</button>';
+            rowHTML += '</td>';
+            rowHTML += '</tr>';
+            
+            tableBody.innerHTML += rowHTML;
+        }
+        
+        console.log("Drivers table rendered successfully");
+    }
+
+    // Function to render the vehicles table
+    function renderVehicles() {
+        console.log("Rendering vehicles table");
+        
+        // Get vehicles from localStorage
+        var vehiclesData = localStorage.getItem('vehicles');
+        var vehicles = [];
+        if (vehiclesData) {
+            vehicles = JSON.parse(vehiclesData);
+        }
+        
+        console.log("Found " + vehicles.length + " vehicles to display");
+        
+        // Get the table body element
+        var tableBody = document.querySelector("#vehicleTable tbody");
+        tableBody.innerHTML = "";
+
+        // Add each vehicle to the table
+        for (var i = 0; i < vehicles.length; i++) {
+            var vehicle = vehicles[i];
+            console.log("Adding vehicle " + (i + 1) + ": " + vehicle.type + " - " + vehicle.reg);
+            
+            var rowHTML = "";
+            rowHTML += '<tr id="vehicle-row-' + i + '">';
+            rowHTML += '<td>' + vehicle.type + '</td>';
+            rowHTML += '<td>' + vehicle.reg + '</td>';
+            rowHTML += '<td>' + vehicle.service + '</td>';
+            rowHTML += '<td>';
+            rowHTML += '<button class="btn btn-warning btn-sm me-1" onclick="editVehicle(' + i + ', this)">Update</button>';
+            rowHTML += '<button class="btn btn-danger btn-sm" onclick="deleteVehicle(' + i + ')">Delete</button>';
+            rowHTML += '</td>';
+            rowHTML += '</tr>';
+            
+            tableBody.innerHTML += rowHTML;
+        }
+        
+        console.log("Vehicles table rendered successfully");
+    }
+
+    // Function to delete a driver
+    function deleteDriver(index) {
+        console.log("Deleting driver at index: " + index);
+        
+        // Get drivers from localStorage
+        var driversData = localStorage.getItem('drivers');
+        var drivers = [];
+        if (driversData) {
+            drivers = JSON.parse(driversData);
+        }
+        
+        // Remove the driver at the specified index
+        drivers.splice(index, 1);
+        
+        // Save back to localStorage
+        localStorage.setItem('drivers', JSON.stringify(drivers));
+        
+        console.log("Driver deleted, remaining drivers: " + drivers.length);
+        
+        // Update the display
+        renderDrivers();
+    }
+
+    // Function to delete a vehicle
+    function deleteVehicle(index) {
+        console.log("Deleting vehicle at index: " + index);
+        
+        // Get vehicles from localStorage
+        var vehiclesData = localStorage.getItem('vehicles');
+        var vehicles = [];
+        if (vehiclesData) {
+            vehicles = JSON.parse(vehiclesData);
+        }
+        
+        // Remove the vehicle at the specified index
+        vehicles.splice(index, 1);
+        
+        // Save back to localStorage
+        localStorage.setItem('vehicles', JSON.stringify(vehicles));
+        
+        console.log("Vehicle deleted, remaining vehicles: " + vehicles.length);
+        
+        // Update the display
+        renderVehicles();
+    }
+
+    // Function to edit a driver (toggle between view and edit mode)
+    function editDriver(index, button) {
+        console.log("Editing driver at index: " + index);
+        
+        // Get the table row element
+        var row = document.getElementById('driver-row-' + index);
+        
+        // Get drivers from localStorage
+        var driversData = localStorage.getItem('drivers');
+        var drivers = [];
+        if (driversData) {
+            drivers = JSON.parse(driversData);
+        }
+        
+        var driver = drivers[index];
+        
+        // Check if we're in update mode (showing the button)
+        if (button.textContent === "Update") {
+            console.log("Switching to edit mode for driver");
+            
+            // Create the edit form HTML
+            var editHTML = "";
+            editHTML += '<td><input class="form-control form-control-sm" value="' + driver.first + '"></td>';
+            editHTML += '<td><input class="form-control form-control-sm" value="' + driver.last + '"></td>';
+            editHTML += '<td><input class="form-control form-control-sm" value="' + driver.phone + '"></td>';
+            editHTML += '<td>';
+            editHTML += '<select class="form-select form-select-sm">';
+            
+            // Add service options with the current one selected
+            var services = [
+                'ALS (Advanced Life Support)',
+                'BLS (Basic Life Support)',
+                'Patient Transport',
+                'Medical Utility Transport',
+                'Event Medical Ambulance',
+                'Air Ambulance'
+            ];
+            
+            for (var i = 0; i < services.length; i++) {
+                var service = services[i];
+                if (driver.service === service) {
+                    editHTML += '<option selected>' + service + '</option>';
+                } else {
+                    editHTML += '<option>' + service + '</option>';
+                }
+            }
+            
+            editHTML += '</select>';
+            editHTML += '</td>';
+            editHTML += '<td>';
+            editHTML += '<button class="btn btn-success btn-sm me-1" onclick="editDriver(' + index + ', this)">Save</button>';
+            editHTML += '<button class="btn btn-danger btn-sm" onclick="deleteDriver(' + index + ')">Delete</button>';
+            editHTML += '</td>';
+            
+            row.innerHTML = editHTML;
+            
+        } else {
+            console.log("Saving edited driver");
+            
+            // Get the input elements
+            var inputs = row.querySelectorAll('input, select');
+            
+            // Create the updated driver object
+            var updatedDriver = {
+                first: inputs[0].value,
+                last: inputs[1].value,
+                phone: inputs[2].value,
+                service: inputs[3].value
+            };
+            
+            // Update the driver in the array
+            drivers[index] = updatedDriver;
+            
+            // Save back to localStorage
+            localStorage.setItem('drivers', JSON.stringify(drivers));
+            
+            console.log("Driver updated successfully");
+            
+            // Re-render the table
+            renderDrivers();
+        }
+    }
+
+    // Function to edit a vehicle (toggle between view and edit mode)
+    function editVehicle(index, button) {
+        console.log("Editing vehicle at index: " + index);
+        
+        // Get the table row element
+        var row = document.getElementById('vehicle-row-' + index);
+        
+        // Get vehicles from localStorage
+        var vehiclesData = localStorage.getItem('vehicles');
+        var vehicles = [];
+        if (vehiclesData) {
+            vehicles = JSON.parse(vehiclesData);
+        }
+        
+        var vehicle = vehicles[index];
+        
+        // Check if we're in update mode (showing the button)
+        if (button.textContent === "Update") {
+            console.log("Switching to edit mode for vehicle");
+            
+            // Create the edit form HTML
+            var editHTML = "";
+            editHTML += '<td><input class="form-control form-control-sm" value="' + vehicle.type + '"></td>';
+            editHTML += '<td><input class="form-control form-control-sm" value="' + vehicle.reg + '"></td>';
+            editHTML += '<td>';
+            editHTML += '<select class="form-select form-select-sm">';
+            
+            // Add service options with the current one selected
+            var services = [
+                'ALS (Advanced Life Support)',
+                'BLS (Basic Life Support)',
+                'Patient Transport',
+                'Medical Utility Transport',
+                'Event Medical Ambulance',
+                'Air Ambulance'
+            ];
+            
+            for (var i = 0; i < services.length; i++) {
+                var service = services[i];
+                if (vehicle.service === service) {
+                    editHTML += '<option selected>' + service + '</option>';
+                } else {
+                    editHTML += '<option>' + service + '</option>';
+                }
+            }
+            
+            editHTML += '</select>';
+            editHTML += '</td>';
+            editHTML += '<td>';
+            editHTML += '<button class="btn btn-success btn-sm me-1" onclick="editVehicle(' + index + ', this)">Save</button>';
+            editHTML += '<button class="btn btn-danger btn-sm" onclick="deleteVehicle(' + index + ')">Delete</button>';
+            editHTML += '</td>';
+            
+            row.innerHTML = editHTML;
+            
+        } else {
+            console.log("Saving edited vehicle");
+            
+            // Get the input elements
+            var inputs = row.querySelectorAll('input, select');
+            
+            // Create the updated vehicle object
+            var updatedVehicle = {
+                type: inputs[0].value,
+                reg: inputs[1].value,
+                service: inputs[2].value
+            };
+            
+            // Update the vehicle in the array
+            vehicles[index] = updatedVehicle;
+            
+            // Save back to localStorage
+            localStorage.setItem('vehicles', JSON.stringify(vehicles));
+            
+            console.log("Vehicle updated successfully");
+            
+            // Re-render the table
+            renderVehicles();
+        }
+    }
+
+    // Function to filter drivers by name and service
+    function filterDrivers() {
+        console.log("Filtering drivers");
+        
+        // Get the filter values
+        var nameFilter = document.getElementById("searchDriverName").value.trim().toLowerCase();
+        var serviceFilter = document.getElementById("searchDriverService").value;
+        
+        console.log("Name filter: '" + nameFilter + "', Service filter: '" + serviceFilter + "'");
+        
+        // Get drivers from localStorage
+        var driversData = localStorage.getItem("drivers");
+        var drivers = [];
+        if (driversData) {
+            drivers = JSON.parse(driversData);
+        }
+
+        // Check each driver against the filters
+        for (var i = 0; i < drivers.length; i++) {
+            var driver = drivers[i];
+            var row = document.getElementById('driver-row-' + i);
+            
+            // Check if name matches (case insensitive)
+            var matchName = driver.first.toLowerCase().includes(nameFilter);
+            
+            // Check if service matches
+            var matchService = (serviceFilter === "" || driver.service === serviceFilter);
+            
+            // Show or hide the row based on both filters
+            if ((nameFilter === "" || matchName) && matchService) {
+                row.style.display = "";
+                console.log("Showing driver: " + driver.first + " " + driver.last);
+            } else {
+                row.style.display = "none";
+                console.log("Hiding driver: " + driver.first + " " + driver.last);
+            }
+        }
+        
+        console.log("Driver filtering complete");
+    }
+
+    // Function to export vehicles to CSV
+    function exportVehicles() {
+        console.log("Exporting vehicles to CSV");
+        
+        // Get vehicles from localStorage
+        var vehiclesData = localStorage.getItem('vehicles');
+        var vehicles = [];
+        if (vehiclesData) {
+            vehicles = JSON.parse(vehiclesData);
+        }
+        
+        console.log("Exporting " + vehicles.length + " vehicles");
+        
+        // Create CSV content
+        var csvContent = "Type,Registration,Service\n";
+        
+        // Add each vehicle to the CSV
+        for (var i = 0; i < vehicles.length; i++) {
+            var vehicle = vehicles[i];
+            var row = vehicle.type + "," + vehicle.reg + "," + vehicle.service;
+            csvContent += row + "\n";
+        }
+        
+        // Create a blob with the CSV data
+        var blob = new Blob([csvContent], { type: 'text/csv' });
+        
+        // Create a download link
+        var downloadLink = document.createElement('a');
+        downloadLink.href = URL.createObjectURL(blob);
+        downloadLink.download = "vehicles.csv";
+        
+        // Trigger the download
+        downloadLink.click();
+        
+        console.log("CSV export completed");
+    }
+
+    // Function to run when the page loads
+    window.onload = function () {
+        console.log("Management page loaded, initializing tables");
+        
+        // Render both tables
+        renderDrivers();
+        renderVehicles();
+        
+        console.log("Management page initialization complete");
+    };
+</script>
